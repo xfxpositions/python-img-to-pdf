@@ -1,7 +1,8 @@
+import os
 from tkinter import *
 from tkinter import filedialog
 import locale
-from run import set_dir_from_gui, set_output_from_gui, main
+from main import hebele
 from tkinter import messagebox
 from tkinter import filedialog
 
@@ -51,6 +52,11 @@ def delete_files():
     listbox.delete(0, END)
     selected_files.clear()
 
+def delete_selected_element():
+    selected_indices = listbox.curselection()
+    if selected_indices:
+        listbox.delete(selected_indices[0])
+
 # function to open file dialog and add selected files to listbox
 def open_files():
     global selected_files, listbox
@@ -84,6 +90,9 @@ down_button.pack()
 delete_button = Button(root, text="Delete Files", command=delete_files)
 delete_button.pack()
 
+delete_one_button = Button(root, text="Delete File From List", command=delete_selected_element)
+delete_one_button.pack()
+
 # create the menu bar
 menu_bar = Menu(root)
 
@@ -100,15 +109,17 @@ def set_language(lang_code):
 menu_bar.add_cascade(label="Language", menu=language_menu)
 # set the menu bar as the root window's menu
 root.config(menu=menu_bar)
-
+finish_message = "DONE"
 def start():
-    set_dir_from_gui(selected_files)
     file_path = filedialog.asksaveasfilename(defaultextension=".pdf",filetypes=[("PDF files", "*.pdf")])
-    set_output_from_gui(file_path)
-    print(selected_files)
-    print(file_path)
-    main()
-    messagebox.showinfo("Message", "Button clicked")
+    filename, ext = os.path.splitext(file_path)  # split filename and extension
+    if len(filename.split(' '))>1:
+        messagebox.showerror("Error", "Filename can't be words, (Dosya ismi iki kelime olamaz) use this: file-name")
+    else:
+        print(selected_files)
+        print(file_path)
+        hebele(selected_files,file_path)
+        messagebox.showinfo("Message", f"{finish_message} {file_path}")
 # create the button
 start_button = Button(root, text="Start", width=20, height=5, command=start)
 
@@ -122,12 +133,18 @@ def change_language(lang):
         up_button.config(text="Move Up")
         select_button.config(text="Select Files")
         title_label.config(text="Python Image to Pdf")
+        start_button.config(text="Start")
+        delete_one_button.config(text="Delete Selected Element")
+        finish_message = "Done"
     elif lang == 'tr':
-        delete_button.config(text='Dosyaları Sil')
+        delete_button.config(text='Dosyaları Temizle')
         down_button.config(text="Dosyanın Sırasını Aşağı Çek")
         up_button.config(text="Dosyanın Sırasını Yukarı Çek")
         select_button.config(text="Dosyaları Seç")
         title_label.config(text="Python Resimleri Pdf'e Çevirme")
+        start_button.config(text="Başlat")
+        delete_one_button.config(text="Seçili elemanı sil")
+        finish_message = "Bitti"
 
 root.geometry("500x500")  # set window size
 root.update_idletasks()  # update window dimensions before getting screen size
